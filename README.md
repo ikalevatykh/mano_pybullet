@@ -33,7 +33,7 @@ pytest
 
 The package provides MANO-based rigid hand model.
 
-![TeaTime](https://github.com/ikalevatykh/mano_pybullet/blob/master/media/tea_time.gif?raw=true "TeaTime")
+![TeaTime](https://github.com/ikalevatykh/mano_pybullet/blob/main/media/tea_time.gif?raw=true "TeaTime")
 
 ## Gym environments
 
@@ -45,11 +45,11 @@ The package also provides several [OpenAI gym](https://gym.openai.com/) environm
 
 - HandLiftEnv - environment where the target is to lift an object.
 
-![HandLiftEnv](https://github.com/ikalevatykh/mano_pybullet/blob/master/media/lift_duck.gif?raw=true "HandLiftEnv")
+![HandLiftEnv](https://github.com/ikalevatykh/mano_pybullet/blob/main/media/lift_duck.gif?raw=true "HandLiftEnv")
 
 - HandPushEnv - environment where the target is to push an object.
 
-![HandPushEnv](https://github.com/ikalevatykh/mano_pybullet/blob/master/media/push_teddy.gif?raw=true "HandPushEnv")
+![HandPushEnv](https://github.com/ikalevatykh/mano_pybullet/blob/main/media/push_teddy.gif?raw=true "HandPushEnv")
 
 
 ## Graphical debugging
