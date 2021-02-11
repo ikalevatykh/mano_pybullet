@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 
-from mano_pybullet.math_utils import joint2mat, mat2joint, mat2rvec, rvec2mat
+from mano_pybullet.math_utils import joint2mat, mat2joint, mat2pb, mat2rvec, pb2mat, rvec2mat
 
 
 class TestUtils(unittest.TestCase):
@@ -26,3 +26,10 @@ class TestUtils(unittest.TestCase):
         np.testing.assert_almost_equal(mat, rvec2mat(mat2rvec(mat)))
         rvec = [1.1, 0.2, 2.3]
         np.testing.assert_almost_equal(rvec, mat2rvec(rvec2mat(rvec)))
+
+    def test_pb_mat_conversion(self):
+        """Test pybullet quaternion to/from mat conversion."""
+        mat = np.eye(3)
+        np.testing.assert_almost_equal(mat, pb2mat(mat2pb(mat)))
+        orn = [0.1, 0.2, 0.3, 0.4] / np.linalg.norm([0.1, 0.2, 0.3, 0.4])
+        np.testing.assert_almost_equal(orn, mat2pb(pb2mat(orn)))

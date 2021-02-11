@@ -139,8 +139,10 @@ class HandBody:
             tuple -- trans, pose
         """
         base_pos, base_orn, _, angles, _, _ = self.get_state()
-        mano_pose = self._model.angles_to_mano(angles, pb2mat(base_orn))
-        return base_pos, mano_pose
+        basis = pb2mat(base_orn)
+        trans = base_pos - self._origin + basis @ self._origin
+        mano_pose = self._model.angles_to_mano(angles, basis)
+        return trans, mano_pose
 
     def reset_from_mano(self, trans, mano_pose):
         """Reset hand state from a Mano pose.
@@ -150,7 +152,7 @@ class HandBody:
             trans {vec3} -- hand translation
         """
         angles, basis = self._model.mano_to_angles(mano_pose)
-        trans += self._origin - basis @ self._origin
+        trans = trans + self._origin - basis @ self._origin
         self.reset(trans, mat2pb(basis), angles)
 
     def set_target_from_mano(self, trans, mano_pose):
@@ -161,7 +163,7 @@ class HandBody:
             trans {vec3} -- hand translation
         """
         angles, basis = self._model.mano_to_angles(mano_pose)
-        trans += self._origin - basis @ self._origin
+        trans = trans + self._origin - basis @ self._origin
         self.set_target(trans, mat2pb(basis), angles)
 
     def _make_body(self):
