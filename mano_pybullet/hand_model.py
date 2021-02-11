@@ -91,11 +91,12 @@ class HandModel(ManoModel):
         recover a mano pose.
 
         Arguments:
-            mano_pose {array} -- mano pose
+            mano_pose {array} -- MANO pose, array of size N*3 where N - number of links
 
         Returns:
             tuple -- dofs angles, palm_basis
         """
+        mano_pose = np.asarray(mano_pose).reshape((-1, 3))
         angles = []
         basis_abs = {0: self._joints[0].basis}
         for i, j in self.kintree_table.T[1:]:
