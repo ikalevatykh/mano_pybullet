@@ -42,6 +42,7 @@ class HandBody:
         self._model = hand_model
         self._flags = flags
         self._vertices = hand_model.vertices(betas=shape_betas)
+        self._origin = self._model.origins()[0]
         self._joint_indices = []
         self._joint_limits = []
         self._link_mapping = {}
@@ -149,6 +150,7 @@ class HandBody:
             trans {vec3} -- hand translation
         """
         angles, basis = self._model.mano_to_angles(mano_pose)
+        trans += self._origin - basis @ self._origin
         self.reset(trans, mat2pb(basis), angles)
 
     def set_target_from_mano(self, trans, mano_pose):
@@ -159,6 +161,7 @@ class HandBody:
             trans {vec3} -- hand translation
         """
         angles, basis = self._model.mano_to_angles(mano_pose)
+        trans += self._origin - basis @ self._origin
         self.set_target(trans, mat2pb(basis), angles)
 
     def _make_body(self):
