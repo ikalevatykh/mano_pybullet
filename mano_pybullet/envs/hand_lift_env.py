@@ -8,11 +8,11 @@ __all__ = ('HandLiftEnv')
 class HandLiftEnv(HandObjectEnv):
     """Lift an object environment class. """
 
-    def __init__(self, target_height=0.3, **kwargs):
+    def __init__(self, target_height=0.25, **kwargs):
         """Constructor of a HandLiftEnv.
 
         Keyword Arguments:
-            target_height {float} -- target lift height (default: {0.3})
+            target_height {float} -- target lift height (default: {0.25})
         """
         super().__init__(self, **kwargs)
         self._target_height = target_height
