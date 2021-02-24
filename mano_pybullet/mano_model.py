@@ -31,9 +31,6 @@ class ManoModel:
                 model = pickle.load(pick_file, encoding='latin1')
 
         self._model = model
-        self._betas = np.zeros(self.shapedirs.shape[-1])
-        self._pose = np.zeros((16, 3))
-        self._trans = np.zeros(3)
         self._is_left_hand = left_hand
 
     @ property
@@ -123,7 +120,7 @@ class ManoModel:
         if pose is not None:
             raise NotImplementedError
         if trans is not None:
-            origins = origins + self._trans
+            origins = origins + trans
         return origins
 
     def vertices(self, betas=None, pose=None, trans=None):
@@ -144,5 +141,5 @@ class ManoModel:
             pose_mapped = [rvec2mat(rvec) - np.eye(3) for rvec in pose[1:]]
             vertices = vertices + np.dot(self.posedirs, np.array(pose_mapped).flatten())
         if trans is not None:
-            vertices = vertices + self._trans
+            vertices = vertices + trans
         return vertices
