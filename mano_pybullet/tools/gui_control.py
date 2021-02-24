@@ -63,13 +63,15 @@ def main(args):
     client.configureDebugVisualizer(pb.COV_ENABLE_RENDERING, 1)
 
     slider_ids = []
-    for coord in ('X', 'Y', 'Z', 'R', 'P', 'Y'):
+    for coord in ('X', 'Y', 'Z'):
+        uid = client.addUserDebugParameter(f'base_{coord}', -0.5, 0.5, 0)
+        slider_ids.append(uid)
+    for coord in ('R', 'P', 'Y'):
         uid = client.addUserDebugParameter(f'base_{coord}', -3.14, 3.14, 0)
         slider_ids.append(uid)
-
     for i, joint in enumerate(hand_model.joints):
         name = hand_model.link_names[i]
-        for axis, (lower, upper) in zip(joint.axes, np.deg2rad(joint.limits)):
+        for axis, (lower, upper) in zip(joint.axes, joint.limits):
             uid = client.addUserDebugParameter(f'{name}[{axis}]', lower, upper, 0)
             slider_ids.append(uid)
 
