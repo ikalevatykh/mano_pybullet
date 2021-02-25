@@ -27,6 +27,10 @@ class HandModel(ManoModel):
         """
         super().__init__(left_hand)
         self._joints = self._make_joints()
+        self._basis = [joint.basis for joint in self._joints]
+        self._axes = [joint.axes for joint in self._joints]
+        self._dofs = [(u-len(self._axes[i]), u)
+                      for i, u in enumerate(np.cumsum([len(joint.axes) for joint in self._joints]))]
 
         assert len(self._joints) == len(self.origins()), 'Wrong joints number'
         assert all([len(j.axes) == len(j.limits) for j in self._joints]), 'Wrong limits number'
@@ -71,18 +75,11 @@ class HandModel(ManoModel):
         Returns:
             array -- MANO pose, array of size N*3 where N - number of links
         """
-        mano_pose = np.zeros((len(self._joints), 3))
-        basis_abs = {0: self._joints[0].basis}
-        dofs = 0
-        for i, j in self.kintree_table.T[1:]:
-            tau0 = self._joints[i].basis.T @ self._joints[j].basis
-            axes = self._joints[j].axes
-            basis_abs[j] = basis_abs[i] @ tau0 @ joint2mat(axes, angles[dofs:])
-            mano_pose[j] = mat2rvec(basis_abs[i].T @ tau0.T @ basis_abs[j])
-            dofs += len(axes)
+        rvecs = [mat2rvec(self._basis[i] @ joint2mat(self._axes[i], angles[d0:d1]) @ self._basis[i].T)
+                 for i, (d0, d1) in enumerate(self._dofs)]
         if palm_basis is not None:
-            mano_pose[0] = mat2rvec(palm_basis)
-        return mano_pose
+            rvecs[0] = mat2rvec(palm_basis)
+        return np.ravel(rvecs)
 
     def mano_to_angles(self, mano_pose):
         """Convert a mano pose to joint angles of the rigid model.
@@ -96,16 +93,11 @@ class HandModel(ManoModel):
         Returns:
             tuple -- dofs angles, palm_basis
         """
-        mano_pose = np.asarray(mano_pose).reshape((-1, 3))
-        angles = []
-        basis_abs = {0: self._joints[0].basis}
-        for i, j in self.kintree_table.T[1:]:
-            tau0 = self._joints[i].basis.T @ self._joints[j].basis
-            axes = self._joints[j].axes
-            basis_abs[j] = tau0 @ basis_abs[i] @ rvec2mat(mano_pose[j])
-            basis_rel = tau0.T @ basis_abs[i].T @ basis_abs[j]
-            angles.extend(mat2joint(basis_rel, axes))
-        return angles, rvec2mat(mano_pose[0])
+        rvecs = np.asarray(mano_pose).reshape((-1, 3))
+        angles = [angle for i, rvec in enumerate(rvecs) for angle in
+                  mat2joint(self._basis[i].T @ rvec2mat(rvec) @ self._basis[i], self._axes[i])]
+        palm_basis = rvec2mat(rvecs[0])
+        return angles, palm_basis
 
     def _make_joints(self):
         """Compute joints parameters.
