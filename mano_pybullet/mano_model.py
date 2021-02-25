@@ -1,5 +1,6 @@
 """This module describes the ManoModel."""
 
+import functools
 import os
 import pickle
 import warnings
@@ -20,18 +21,25 @@ class ManoModel:
         Keyword Arguments:
             left_hand {bool} -- create a left hand myodel (default: {False})
         """
-        if left_hand:
-            path = os.path.expandvars('$MANO_MODELS_DIR/MANO_LEFT.pkl')
-        else:
-            path = os.path.expandvars('$MANO_MODELS_DIR/MANO_RIGHT.pkl')
+        path = f'$MANO_MODELS_DIR/MANO_{["RIGHT", "LEFT"][left_hand]}.pkl'
+        self._model = self._load(os.path.expandvars(path))
+        self._is_left_hand = left_hand
 
+    @staticmethod
+    @functools.lru_cache(maxsize=2)
+    def _load(path):
+        """Load the model from disk.
+
+        Arguments:
+            path {str} -- path to the pickled model file
+
+        Returns:
+            chumpy array -- MANO model
+        """
         with open(path, 'rb') as pick_file:
             with warnings.catch_warnings():  # suppress chumpy warnings
                 warnings.filterwarnings("ignore", category=DeprecationWarning)
-                model = pickle.load(pick_file, encoding='latin1')
-
-        self._model = model
-        self._is_left_hand = left_hand
+                return pickle.load(pick_file, encoding='latin1')
 
     @property
     def is_left_hand(self):
