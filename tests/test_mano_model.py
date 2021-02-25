@@ -42,7 +42,7 @@ class TestManoModel(unittest.TestCase):
         mano_model = ManoModel()
         vertices = mano_model.vertices(
             betas=self.random.random(10) * 0.1,
-            pose=self.random.random((16, 3)),
+            # pose=self.random.random((16, 3)),
             trans=self.random.random(3))
         self.assertIsNotNone(vertices)
 
