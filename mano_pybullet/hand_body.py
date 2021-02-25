@@ -82,7 +82,7 @@ class HandBody:
         """Get current hand state.
 
         Returns:
-            tuple -- base position, orientation, joint positions, velocities, torques
+            tuple -- base position, orientation, forces, joint positions, velocities, torques
         """
         base_pos, base_orn = self._client.getBasePositionAndOrientation(self._body_id)
         if self._constraint_id != -1:
