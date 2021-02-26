@@ -19,13 +19,14 @@ class HandModel(ManoModel):
     from the joint space to the MANO model pose.
     """
 
-    def __init__(self, left_hand=False):
+    def __init__(self, left_hand=False, models_dir=None):
         """Initialize a HandModel.
 
         Keyword Arguments:
             left_hand {bool} -- create a left hand model (default: {False})
+            models_dir {str} -- path to the pickled model files (default: {None})
         """
-        super().__init__(left_hand)
+        super().__init__(left_hand=left_hand, models_dir=models_dir)
         self._joints = self._make_joints()
         self._basis = [joint.basis for joint in self._joints]
         self._axes = [joint.axes for joint in self._joints]

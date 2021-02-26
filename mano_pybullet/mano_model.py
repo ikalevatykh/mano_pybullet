@@ -15,14 +15,18 @@ __all__ = ('ManoModel')
 class ManoModel:
     """The helper class to work with a MANO hand model."""
 
-    def __init__(self, left_hand=False):
+    def __init__(self, left_hand=False, models_dir=None):
         """Load the hand model from a pickled file.
 
         Keyword Arguments:
-            left_hand {bool} -- create a left hand myodel (default: {False})
+            left_hand {bool} -- create a left hand model (default: {False})
+            models_dir {str} -- path to the pickled model files (default: {None})
         """
-        path = f'$MANO_MODELS_DIR/MANO_{["RIGHT", "LEFT"][left_hand]}.pkl'
-        self._model = self._load(os.path.expandvars(path))
+        if models_dir is None:
+            models_dir = os.path.expandvars('$MANO_MODELS_DIR')
+
+        fname = f'MANO_{["RIGHT", "LEFT"][left_hand]}.pkl'
+        self._model = self._load(os.path.join(models_dir, fname))
         self._is_left_hand = left_hand
 
     @staticmethod
