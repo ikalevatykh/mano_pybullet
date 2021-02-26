@@ -8,11 +8,11 @@
 ```
 git clone https://github.com/ikalevatykh/mano_pybullet.git
 cd mano_pybullet
-python setup.py develop 
+pip install -e .
 ```
-or
+or if you plan to use [OpenAI gym](https://gym.openai.com/) environments:
 ```
-python setup.py install
+pip install -e .[gym]
 ```
 
 ### Run tests

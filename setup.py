@@ -31,12 +31,14 @@ setup(
         'Topic :: Scientific/Engineering',
     ],
     keywords='PyBullet MANO VR robotics',
+    python_requires='>=3.6',
     packages=find_packages(),
     install_requires=[
         'numpy',
         'transforms3d',
         'pybullet>=3.0.6',
-        'gym>=0.17.3',
-        # 'imageio',
     ],
+    extras_require={
+        'gym': ['gym>=0.17.3', 'imageio']
+    }
 )
