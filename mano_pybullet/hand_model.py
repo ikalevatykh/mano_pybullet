@@ -76,8 +76,13 @@ class HandModel(ManoModel):
         Returns:
             array -- MANO pose, array of size N*3 where N - number of links
         """
-        rvecs = [mat2rvec(self._basis[i] @ joint2mat(self._axes[i], angles[d0:d1]) @ self._basis[i].T)
-                 for i, (d0, d1) in enumerate(self._dofs)]
+        if len(angles) != self.dofs_number:
+            raise ValueError(f'Expected {self.dofs_number} angles (got {len(angles)}).')
+
+        def joint_to_rvec(i, angles):
+            return mat2rvec(self._basis[i] @ joint2mat(self._axes[i], angles) @ self._basis[i].T)
+
+        rvecs = [joint_to_rvec(i, angles[d0:d1]) for i, (d0, d1) in enumerate(self._dofs)]
         if palm_basis is not None:
             rvecs[0] = mat2rvec(palm_basis)
         return np.ravel(rvecs)
@@ -95,8 +100,13 @@ class HandModel(ManoModel):
             tuple -- dofs angles, palm_basis
         """
         rvecs = np.asarray(mano_pose).reshape((-1, 3))
-        angles = [angle for i, rvec in enumerate(rvecs) for angle in
-                  mat2joint(self._basis[i].T @ rvec2mat(rvec) @ self._basis[i], self._axes[i])]
+        if rvecs.size != 48:
+            raise ValueError(f'Expected 48 items in the MANO pose (got {rvecs.size}).')
+
+        def rvec_to_joint(i, rvec):
+            return mat2joint(self._basis[i].T @ rvec2mat(rvec) @ self._basis[i], self._axes[i])
+
+        angles = [angle for i, rvec in enumerate(rvecs) for angle in rvec_to_joint(i, rvec)]
         palm_basis = rvec2mat(rvecs[0])
         return angles, palm_basis
 
