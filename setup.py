@@ -35,6 +35,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'numpy',
+        'chumpy',
         'transforms3d',
         'pybullet>=3.0.6',
     ],
