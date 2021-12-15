@@ -1,5 +1,7 @@
 """Rigid hand body."""
 import contextlib
+import os
+import pathlib
 import tempfile
 
 import numpy as np
@@ -297,11 +299,16 @@ class HandBody:
     @contextlib.contextmanager
     def _temp_link_mesh(self, link_index, collision):
         with tempfile.NamedTemporaryFile('w', suffix='.obj') as temp_file:
-            threshold = 0.2
-            if collision and link_index in [4, 7, 10]:
-                threshold = 0.7
-            vertex_mask = self._model.weights[:, link_index] > threshold
-            vertices, faces = filter_mesh(self._vertices, self._model.faces, vertex_mask)
-            vertices -= self._model.joints[link_index].origin
-            save_mesh_obj(temp_file.name, vertices, faces)
-            yield temp_file.name
+            tmp_folder = str(pathlib.Path(temp_file.name).parent)
+            temp_file.name = temp_file.name.replace(
+                tmp_folder,
+                os.path.join(tmp_folder, "MANO_Pybullet")
+            )
+        threshold = 0.2
+        if collision and link_index in [4, 7, 10]:
+            threshold = 0.7
+        vertex_mask = self._model.weights[:, link_index] > threshold
+        vertices, faces = filter_mesh(self._vertices, self._model.faces, vertex_mask)
+        vertices -= self._model.joints[link_index].origin
+        save_mesh_obj(temp_file.name, vertices, faces)
+        yield temp_file.name

@@ -194,8 +194,11 @@ class HandEnv(gym.Env):
         Environments will automatically close() themselves when
         garbage collected or when the program exits.
         """
-        if self._client.isConnected():
-            self._client.disconnect()
+        try:
+            if self._client.isConnected():
+                self._client.disconnect()
+        except:
+            return
 
     def seed(self, seed=None):
         """Sets the seed for this env's random number generator(s).
