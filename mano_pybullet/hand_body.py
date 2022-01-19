@@ -1,5 +1,7 @@
 """Rigid hand body."""
 import contextlib
+import os
+import pathlib
 import tempfile
 
 import numpy as np
@@ -40,6 +42,7 @@ class HandBody:
         """
         self._client = client
         self._model = hand_model
+        self.joint_low, self.joint_high = map(np.float32, self._model.dofs_limits)
         self._flags = flags
         self._vertices = hand_model.vertices(betas=shape_betas)
         self._origin = self._model.origins()[0]
@@ -91,6 +94,7 @@ class HandBody:
             constraint_forces = [0.0] * 6
         joint_states = self._client.getJointStates(self._body_id, self._joint_indices)
         joints_pos, joints_vel, _, joints_torque = zip(*joint_states)
+        joints_pos = tuple(np.clip(joints_pos, self.joint_low, self.joint_high))
         return base_pos, base_orn, constraint_forces, joints_pos, joints_vel, joints_torque
 
     def reset(self, position, orientation, joint_angles=None):
@@ -273,7 +277,8 @@ class HandBody:
                     bodyUniqueId=self._body_id,
                     linkIndex=i,
                     jointLowerLimit=limits[0],
-                    jointUpperLimit=limits[1])
+                    jointUpperLimit=limits[1],
+                    maxJointVelocity=3.0)
 
     def _apply_dynamics(self):
         if self.FLAG_DYNAMICS & self._flags:
@@ -294,11 +299,16 @@ class HandBody:
     @contextlib.contextmanager
     def _temp_link_mesh(self, link_index, collision):
         with tempfile.NamedTemporaryFile('w', suffix='.obj') as temp_file:
-            threshold = 0.2
-            if collision and link_index in [4, 7, 10]:
-                threshold = 0.7
-            vertex_mask = self._model.weights[:, link_index] > threshold
-            vertices, faces = filter_mesh(self._vertices, self._model.faces, vertex_mask)
-            vertices -= self._model.joints[link_index].origin
-            save_mesh_obj(temp_file.name, vertices, faces)
-            yield temp_file.name
+            tmp_folder = str(pathlib.Path(temp_file.name).parent)
+            temp_file.name = temp_file.name.replace(
+                tmp_folder,
+                os.path.join(tmp_folder, "MANO_Pybullet")
+            )
+        threshold = 0.2
+        if collision and link_index in [4, 7, 10]:
+            threshold = 0.7
+        vertex_mask = self._model.weights[:, link_index] > threshold
+        vertices, faces = filter_mesh(self._vertices, self._model.faces, vertex_mask)
+        vertices -= self._model.joints[link_index].origin
+        save_mesh_obj(temp_file.name, vertices, faces)
+        yield temp_file.name

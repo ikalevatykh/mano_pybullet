@@ -14,7 +14,7 @@ class HandLiftEnv(HandObjectEnv):
         Keyword Arguments:
             target_height {float} -- target lift height (default: {0.25})
         """
-        super().__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._target_height = target_height
 
     def reset(self, **kwargs):
